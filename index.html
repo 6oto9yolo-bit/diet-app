@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ダイエット">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#4ade80">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>梶田のダイエットアプリ</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0a0a0a; --s1:#111; --s2:#181818; --s3:#222; --border:#2a2a2a;
+  --green:#4ade80; --gbg:rgba(74,222,128,.08); --gdim:#166534;
+  --orange:#fb923c; --obg:rgba(251,146,60,.08); --odim:#7c2d12;
+  --blue:#60a5fa; --bbg:rgba(96,165,250,.08);
+  --teal:#2dd4bf; --tbg:rgba(45,212,191,.08);
+  --red:#f87171; --yellow:#fbbf24;
+  --muted:#555; --muted2:#777; --text:#efefef;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;min-height:100vh;max-width:480px;margin:0 auto}
+
+/* HEADER */
+.hdr{padding:22px 20px 0;background:linear-gradient(180deg,#0a180a 0%,var(--bg) 100%)}
+.hdr-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+.hdr-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--green);letter-spacing:3px;margin-bottom:5px}
+.hdr-title{font-size:20px;font-weight:900;line-height:1.2}
+.hdr-title .g{color:var(--green)} .hdr-title .o{color:var(--orange)}
+.date-badge{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:8px 12px;text-align:center;min-width:76px}
+.date-val{font-family:'DM Mono',monospace;font-size:16px;color:var(--green)}
+.date-lbl{font-size:9px;color:var(--muted2);letter-spacing:1px;margin-top:1px}
+
+/* PROGRESS */
+.prog-wrap{padding:0 0 18px}
+.prog-row{margin-bottom:7px}
+.prog-hd{display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px}
+.prog-name{color:var(--muted2)} .prog-val{font-family:'DM Mono',monospace;color:var(--muted2)}
+.prog-bg{height:4px;background:var(--s3);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;border-radius:2px;transition:width .4s ease}
+.pf-shop{background:var(--orange)} .pf-prep{background:var(--green)}
+
+/* BOTTOM NAV */
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--s1);border-top:1px solid var(--border);display:flex;z-index:100}
+.bn{flex:1;padding:10px 4px 14px;text-align:center;cursor:pointer;transition:all .2s}
+.bn-icon{font-size:18px;margin-bottom:2px}
+.bn-label{font-size:9px;color:var(--muted);letter-spacing:.5px}
+.bn.active .bn-label{color:var(--green)}
+.bn.active .bn-icon{filter:drop-shadow(0 0 6px var(--green))}
+
+/* PAGES */
+.page{display:none;padding:16px 16px 90px}
+.page.active{display:block}
+
+/* SEC */
+.sec{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2);letter-spacing:3px;margin:20px 0 10px}
+.sec:first-child{margin-top:0}
+.sec-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.sec-title{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2);letter-spacing:3px}
+.sec-right{display:flex;gap:6px;align-items:center}
+.sec-count{font-family:'DM Mono',monospace;font-size:11px;color:var(--green)}
+
+/* INFO */
+.info{background:var(--s2);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:8px;padding:12px 14px;margin-bottom:12px;font-size:12px;line-height:1.7}
+.info.o{border-left-color:var(--orange)} .info.b{border-left-color:var(--blue)} .info.t{border-left-color:var(--teal)}
+.info strong{color:var(--green)} .info.o strong{color:var(--orange)} .info.b strong{color:var(--blue)} .info.t strong{color:var(--teal)}
+
+/* CARD */
+.card{background:var(--s1);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:10px}
+.card-hd{padding:12px 15px;display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid var(--border)}
+.card-hd.g{background:linear-gradient(90deg,var(--gdim),#0a1a0f)}
+.card-hd.o{background:linear-gradient(90deg,var(--odim),#1a0800)}
+.card-hd.b{background:linear-gradient(90deg,#1e3a5f,#081525)}
+.card-hd.t{background:linear-gradient(90deg,#134e4a,#021a18)}
+.card-label{font-family:'DM Mono',monospace;font-size:9px;opacity:.6;letter-spacing:2px;margin-bottom:2px}
+.card-name{font-size:15px;font-weight:900}
+.card-sub{font-size:11px;opacity:.65;margin-top:2px}
+.card-meta-val{font-family:'DM Mono',monospace;font-size:15px;color:var(--green);text-align:right}
+.card-meta-sub{font-size:10px;color:var(--muted);text-align:right;margin-top:2px}
+.card-body{padding:14px 15px}
+
+/* TAGS */
+.tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.tag{padding:3px 9px;border-radius:20px;font-size:11px;font-family:'DM Mono',monospace;border:1px solid}
+.tag.p{color:var(--red);border-color:rgba(248,113,113,.3);background:rgba(248,113,113,.06)}
+.tag.c{color:var(--yellow);border-color:rgba(251,191,36,.3);background:rgba(251,191,36,.06)}
+.tag.f{color:var(--teal);border-color:rgba(45,212,191,.3);background:rgba(45,212,191,.06)}
+.tag.v{color:var(--green);border-color:rgba(74,222,128,.3);background:rgba(74,222,128,.06)}
+.tag.k{color:var(--muted2);border-color:var(--border);background:var(--s2)}
+.tag.o{color:var(--orange);border-color:rgba(251,146,60,.3);background:rgba(251,146,60,.06)}
+
+/* STEPS */
+.steps{background:var(--s2);border-radius:8px;padding:12px 14px;margin-bottom:10px}
+.steps-lbl{font-family:'DM Mono',monospace;font-size:9px;color:var(--green);letter-spacing:2px;margin-bottom:8px}
+.step{display:flex;gap:9px;margin-bottom:4px;font-size:12px;line-height:1.55}
+.step:last-child{margin-bottom:0}
+.step-n{font-family:'DM Mono',monospace;font-size:11px;color:var(--green);min-width:18px;padding-top:1px}
+.step-tip{font-size:11px;color:var(--orange);margin:2px 0 4px 27px;line-height:1.4}
+
+/* STORAGE */
+.storage{border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:10px}
+.storage-lbl{font-family:'DM Mono',monospace;font-size:9px;color:var(--orange);letter-spacing:2px;margin-bottom:8px}
+.st-row{display:flex;gap:9px;margin-bottom:7px;align-items:flex-start;font-size:12px;line-height:1.5}
+.st-row:last-child{margin-bottom:0}
+.st-icon{min-width:20px;font-size:15px}
+.st-days{display:inline-block;background:var(--gdim);color:var(--green);font-family:'DM Mono',monospace;font-size:9px;padding:1px 6px;border-radius:10px;margin-left:3px}
+.st-warn{font-size:11px;color:var(--orange);margin-top:7px;padding-top:7px;border-top:1px solid var(--border)}
+
+/* BENTO */
+.bento{background:var(--s2);border-radius:8px;padding:12px 14px;margin-bottom:10px}
+.bento-lbl{font-family:'DM Mono',monospace;font-size:9px;color:var(--blue);letter-spacing:2px;margin-bottom:8px}
+.bento-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:8px}
+.bzone{border:1px dashed var(--border);border-radius:6px;padding:8px;text-align:center}
+.bzone.full{grid-column:1/-1;border-color:rgba(74,222,128,.3);background:rgba(74,222,128,.04)}
+.bzone-lbl{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:2px}
+.bzone-name{font-size:12px;font-weight:700}
+.bzone-g{font-family:'DM Mono',monospace;font-size:10px;color:var(--orange);margin-top:1px}
+.btips{display:flex;flex-direction:column;gap:5px}
+.btip{display:flex;gap:7px;font-size:11px;line-height:1.4;color:var(--muted2)}
+
+/* SHOP ITEMS */
+.cat-lbl{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;padding:10px 0 5px;border-top:1px solid var(--border);margin-top:4px}
+.cat-lbl:first-child{border-top:none;padding-top:0;margin-top:0}
+.item{display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--s2);border-radius:9px;margin-bottom:5px;cursor:pointer;border:1px solid transparent;transition:all .15s}
+.item:active{background:var(--s3)}
+.item.done{opacity:.3}
+.item.done .item-name{text-decoration:line-through}
+.chk{width:21px;height:21px;border-radius:6px;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .15s}
+.item.done .chk{background:var(--green);border-color:var(--green);color:#000}
+.item-body{flex:1}
+.item-name{font-size:13px;line-height:1.35}
+.item-note{font-size:11px;color:var(--muted2);margin-top:1px}
+.item-right{text-align:right;flex-shrink:0}
+.item-price{font-family:'DM Mono',monospace;font-size:11px;color:var(--orange)}
+.item-qty{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:1px}
+
+/* PREP STEPS */
+.prep-item{display:flex;gap:11px;padding:13px;background:var(--s2);border-radius:9px;margin-bottom:5px;cursor:pointer;border:1px solid transparent;transition:all .15s}
+.prep-item:active{background:var(--s3)}
+.prep-item.done{opacity:.3}
+.prep-item.done .prep-name{text-decoration:line-through}
+.prep-item.done .chk{background:var(--green);border-color:var(--green);color:#000}
+.prep-num{font-family:'DM Mono',monospace;font-size:11px;color:var(--green);min-width:22px;padding-top:2px}
+.prep-body{flex:1}
+.prep-name{font-size:13px;font-weight:700;margin-bottom:3px}
+.prep-desc{font-size:12px;color:var(--muted2);line-height:1.5}
+.prep-tip{font-size:11px;color:var(--orange);margin-top:4px}
+.prep-time{font-family:'DM Mono',monospace;font-size:10px;color:var(--orange);white-space:nowrap;padding-top:2px}
+
+/* CHECKED SECTION */
+.checked-toggle{display:flex;align-items:center;gap:7px;padding:10px 0;cursor:pointer;color:var(--muted2);font-size:12px;border-top:1px solid var(--border);margin-top:6px}
+.toggle-arrow{font-size:10px;transition:transform .2s}
+.checked-toggle.open .toggle-arrow{transform:rotate(90deg)}
+.checked-list{display:none;padding-top:5px}
+.checked-list.open{display:block}
+
+/* TOTAL BAR */
+.total-bar{background:var(--s2);border:1px solid var(--green);border-radius:10px;padding:11px 15px;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.total-lbl{font-size:12px;color:var(--muted2)}
+.total-val{font-family:'DM Mono',monospace;font-size:20px;color:var(--green)}
+.total-sub{font-size:10px;color:var(--muted);text-align:right;margin-top:1px}
+
+/* SOUP SELECTOR */
+.soup-sel{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:12px}
+.soup-sel-lbl{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2);letter-spacing:2px;margin-bottom:9px}
+.soup-opts{display:flex;gap:5px;flex-wrap:wrap}
+.soup-opt{padding:5px 11px;border-radius:20px;border:1px solid var(--border);font-size:12px;color:var(--muted2);cursor:pointer;transition:all .15s}
+.soup-opt.active{background:var(--teal);color:#000;border-color:var(--teal);font-weight:700}
+
+/* RECIPE TABS */
+.rtabs{display:flex;gap:5px;margin-bottom:12px;overflow-x:auto;scrollbar-width:none}
+.rtabs::-webkit-scrollbar{display:none}
+.rtab{flex-shrink:0;padding:6px 13px;border-radius:20px;border:1px solid var(--border);background:var(--s1);color:var(--muted2);font-size:12px;cursor:pointer;transition:all .2s}
+.rtab.active{background:var(--orange);color:#000;border-color:var(--orange);font-weight:700}
+
+/* DAY TABS */
+.dtabs{display:flex;gap:5px;margin-bottom:12px;overflow-x:auto;scrollbar-width:none}
+.dtabs::-webkit-scrollbar{display:none}
+.dtab{flex-shrink:0;padding:6px 13px;border-radius:20px;border:1px solid var(--border);background:var(--s1);color:var(--muted2);font-size:12px;cursor:pointer;transition:all .2s}
+.dtab.active{background:var(--blue);color:#000;border-color:var(--blue);font-weight:700}
+
+/* METERS */
+.meters{background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:13px 14px;margin-bottom:10px}
+.meters-lbl{font-family:'DM Mono',monospace;font-size:9px;color:var(--green);letter-spacing:2px;margin-bottom:9px}
+.meter{margin-bottom:7px}
+.meter:last-child{margin-bottom:0}
+.meter-hd{display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px}
+.meter-name{font-weight:700}
+.meter-val{font-family:'DM Mono',monospace;color:var(--muted)}
+.meter-bg{height:6px;background:var(--s3);border-radius:3px;overflow:hidden}
+.meter-fill{height:100%;border-radius:3px;transition:width .5s ease}
+
+/* MEAL ROW */
+.meal-row{background:var(--s1);border:1px solid var(--border);border-radius:9px;padding:11px 13px;margin-bottom:7px;display:flex;gap:9px;align-items:flex-start;animation:fi .25s ease}
+@keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.meal-icon{font-size:20px;min-width:30px;text-align:center;padding-top:1px}
+.meal-body{flex:1}
+.meal-type{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:2px}
+.meal-name{font-size:13px;font-weight:700;margin-bottom:2px}
+.meal-desc{font-size:11px;color:var(--muted2);line-height:1.4}
+.meal-kcal{font-family:'DM Mono',monospace;font-size:12px;color:var(--orange);white-space:nowrap;padding-top:2px}
+
+/* DAY TOTAL */
+.day-total{background:var(--s2);border:1px solid var(--blue);border-radius:10px;padding:11px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.dt-lbl{font-size:12px;color:var(--muted2)}
+.dt-val{font-family:'DM Mono',monospace;font-size:19px;color:var(--blue)}
+.dt-sub{font-size:10px;color:var(--muted);text-align:right;margin-top:1px}
+
+/* CHECKLIST */
+.chklist{display:flex;flex-direction:column;gap:5px}
+.chk-item{display:flex;align-items:flex-start;gap:9px;padding:10px 12px;background:var(--s2);border-radius:8px;font-size:13px;line-height:1.5;cursor:pointer;border:1px solid transparent;transition:all .15s}
+.chk-item:active{background:var(--s3)}
+.chk-item.done{opacity:.35;text-decoration:line-through}
+.chk-item.done .chk{background:var(--green);border-color:var(--green);color:#000}
+
+/* ADJUST TABLE */
+.adj-tbl{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:12px}
+.adj-tbl th{background:var(--s2);padding:8px 10px;text-align:left;font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;border-bottom:1px solid var(--border)}
+.adj-tbl td{padding:10px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.6}
+.adj-tbl tr:last-child td{border-bottom:none}
+.situation{color:var(--yellow);font-weight:700;font-size:11px}
+
+/* RESET BTN */
+.reset-btn{font-size:11px;color:var(--muted);cursor:pointer;padding:4px 8px;border:1px solid var(--border);border-radius:6px;background:var(--s2)}
+.reset-btn:active{background:var(--s3)}
+
+/* GRID 2 */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px}
+.stat-box{background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:11px}
+.stat-val{font-family:'DM Mono',monospace;font-size:16px;color:var(--green);margin-bottom:3px}
+.stat-sub{font-size:11px;color:var(--muted2);line-height:1.4}
+
+.point{font-size:11px;color:var(--muted2);margin-top:8px;padding-top:8px;border-top:1px solid var(--border);line-height:1.5}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-top">
+    <div>
+      <div class="hdr-label">DIET APP — ALL IN ONE</div>
+      <div class="hdr-title">梶田の<span class="g">節約</span><span class="o">ダイエット</span></div>
+    </div>
+    <div class="date-badge">
+      <div class="date-val" id="dateVal">—</div>
+      <div class="date-lbl">TODAY</div>
+    </div>
+  </div>
+  <div class="prog-wrap">
+    <div class="prog-row">
+      <div class="prog-hd"><span class="prog-name">🛒 買い出し</span><span class="prog-val" id="shopProg">0/0</span></div>
+      <div class="prog-bg"><div class="prog-fill pf-shop" id="shopBar" style="width:0%"></div></div>
+    </div>
+    <div class="prog-row">
+      <div class="prog-hd"><span class="prog-name">🔧 仕込み</span><span class="prog-val" id="prepProg">0/0</span></div>
+      <div class="prog-bg"><div class="prog-fill pf-prep" id="prepBar" style="width:0%"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGES -->
+<div class="page active" id="page-overview">
+  <div class="sec">このプランの前提</div>
+  <div class="grid2">
+    <div class="stat-box"><div class="stat-val">朝</div><div class="stat-sub">食べない。スキップ固定。</div></div>
+    <div class="stat-box"><div class="stat-val">昼</div><div class="stat-sub">会社で弁当。外で買わない。</div></div>
+    <div class="stat-box"><div class="stat-val">夕方</div><div class="stat-sub">補食を入れる。夜の爆食防止。</div></div>
+    <div class="stat-box"><div class="stat-val">夜22時</div><div class="stat-sub">家でスープ＋少なめごはん。</div></div>
+  </div>
+  <div class="sec">1日の目標</div>
+  <div class="tags">
+    <span class="tag k">カロリー 1,700〜1,900kcal</span>
+    <span class="tag p">タンパク質 100〜120g</span>
+    <span class="tag v">野菜 500〜700g</span>
+    <span class="tag c">水分 2.0〜2.5L</span>
+    <span class="tag k">歩数 8,000歩</span>
+  </div>
+  <div class="sec">1日の食事構成</div>
+  <div class="card">
+    <div class="card-hd g"><div><div class="card-label">LUNCH</div><div class="card-name">昼弁当</div></div><div><div class="card-meta-val">800〜900kcal</div><div class="card-meta-sub">P 60〜70g</div></div></div>
+    <div class="card-body" style="font-size:13px;line-height:1.6">ごはん250g＋鶏むね220g＋冷凍野菜200〜250g＋ゆで卵1個</div>
+  </div>
+  <div class="card">
+    <div class="card-hd o"><div><div class="card-label">SNACK</div><div class="card-name">夕方の補食</div></div><div><div class="card-meta-val">100〜200kcal</div><div class="card-meta-sub">爆食防止</div></div></div>
+    <div class="card-body" style="font-size:13px;line-height:1.6">ゆで卵2個 or プロテイン1杯 or オイコス1本（どれか1つ）</div>
+  </div>
+  <div class="card">
+    <div class="card-hd t"><div><div class="card-label">DINNER</div><div class="card-name">夜食</div></div><div><div class="card-meta-val">650〜800kcal</div><div class="card-meta-sub">P 35〜45g</div></div></div>
+    <div class="card-body" style="font-size:13px;line-height:1.6">ごはん100〜150g＋豆腐300g＋納豆1パック＋卵1個＋野菜スープ400〜500g</div>
+  </div>
+  <div class="info o">
+    <strong>弁当で避ける食材（会社向け）</strong><br>
+    納豆・サバ缶・キムチ・にんにく強め・魚系缶詰。これらは夜に家で食べる。
+  </div>
+  <div class="info b">
+    <strong>飲み物ルール</strong><br>
+    基本は水のみ。1日2.0〜2.5L。オイコスは「飲み物」ではなく「補食」扱い。喉が渇いたらまず水。
+  </div>
+</div>
+
+<!-- 買い出し -->
+<div class="page" id="page-shop">
+  <div class="soup-sel">
+    <div class="soup-sel-lbl">SOUP THIS WEEK — 選ぶと食材が変わる</div>
+    <div class="soup-opts" id="soupOpts"></div>
+  </div>
+  <div class="total-bar">
+    <div class="total-lbl">今週の食費目安</div>
+    <div><div class="total-val" id="totalCost">—</div><div class="total-sub">米・調味料ストック除く</div></div>
+  </div>
+  <div class="sec-row">
+    <div class="sec-title">未チェック <span id="shopUncheckedCount" style="color:var(--green);margin-left:6px"></span></div>
+    <div class="reset-btn" onclick="resetShop()">リセット</div>
+  </div>
+  <div id="shopUnchecked"></div>
+  <div class="checked-toggle" id="shopToggle" onclick="toggleChecked('shop')">
+    <span class="toggle-arrow">▶</span><span>チェック済み</span>
+    <span style="margin-left:auto;font-family:'DM Mono',monospace;font-size:11px;color:var(--green)" id="shopCheckedCount"></span>
+  </div>
+  <div class="checked-list" id="shopChecked"></div>
+</div>
+
+<!-- 仕込み -->
+<div class="page" id="page-prep">
+  <div class="info"><strong>目安時間：約2時間</strong><br>上から順番にやると効率よく終わる。炊飯と茹でを並行して進めるのがコツ。</div>
+  <div class="sec-row">
+    <div class="sec-title">仕込み手順 <span id="prepLeftCount" style="color:var(--green);margin-left:6px"></span></div>
+    <div class="reset-btn" onclick="resetPrep()">リセット</div>
+  </div>
+  <div id="prepUnchecked"></div>
+  <div class="checked-toggle" id="prepToggle" onclick="toggleChecked('prep')">
+    <span class="toggle-arrow">▶</span><span>完了済み</span>
+    <span style="margin-left:auto;font-family:'DM Mono',monospace;font-size:11px;color:var(--green)" id="prepCheckedCount"></span>
+  </div>
+  <div class="checked-list" id="prepChecked"></div>
+</div>
+
+<!-- レシピ -->
+<div class="page" id="page-recipe">
+  <div class="rtabs">
+    <div class="rtab active" onclick="switchRecipe(0)">昼弁当</div>
+    <div class="rtab" onclick="switchRecipe(1)">夕方補食</div>
+    <div class="rtab" onclick="switchRecipe(2)">夜スープ</div>
+  </div>
+  <div id="recipeContainer"></div>
+</div>
+
+<!-- 曜日別 -->
+<div class="page" id="page-day">
+  <div class="dtabs">
+    <div class="dtab active" onclick="switchDay(0)">月</div>
+    <div class="dtab" onclick="switchDay(1)">火</div>
+    <div class="dtab" onclick="switchDay(2)">水</div>
+    <div class="dtab" onclick="switchDay(3)">木</div>
+    <div class="dtab" onclick="switchDay(4)">金</div>
+    <div class="dtab" onclick="switchDay(5)">土</div>
+    <div class="dtab" onclick="switchDay(6)">日</div>
+  </div>
+  <div id="dayContainer"></div>
+</div>
+
+<!-- 調整 -->
+<div class="page" id="page-adjust">
+  <div class="info"><strong>2〜3週間やって結果を見てから調整する。</strong>最初の2週間は完璧より継続。</div>
+  <table class="adj-tbl">
+    <thead><tr><th>状況</th><th>やること</th></tr></thead>
+    <tbody>
+      <tr><td class="situation">✅ 体重が落ちている</td><td>そのまま続ける。何も変えない。</td></tr>
+      <tr><td class="situation">⚠️ 2〜3週間落ちない</td><td>①夜ごはんを少し減らす②歩数を9,000〜10,000歩に増やす③昼か夜のごはんを合計100g減らす。どれか1つだけ。</td></tr>
+      <tr><td class="situation">🔴 しんどい・ふらつく・暴食したい</td><td>食事を少し増やす。ごはんを100g増やす / 卵を1個増やす / 豆腐を増やす。無理に固定しない。</td></tr>
+    </tbody>
+  </table>
+  <div class="sec">このプランの勝ち筋</div>
+  <div class="chklist" id="winList"></div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bnav">
+  <div class="bn active" onclick="switchPage('overview')"><div class="bn-icon">📋</div><div class="bn-label">概要</div></div>
+  <div class="bn" onclick="switchPage('shop')"><div class="bn-icon">🛒</div><div class="bn-label">買い出し</div></div>
+  <div class="bn" onclick="switchPage('prep')"><div class="bn-icon">🔧</div><div class="bn-label">仕込み</div></div>
+  <div class="bn" onclick="switchPage('recipe')"><div class="bn-icon">🍳</div><div class="bn-label">レシピ</div></div>
+  <div class="bn" onclick="switchPage('day')"><div class="bn-icon">📊</div><div class="bn-label">曜日別</div></div>
+  <div class="bn" onclick="switchPage('adjust')"><div class="bn-icon">⚙️</div><div class="bn-label">調整</div></div>
+</div>
+
+<script>
+// ===== 日付 =====
+const today = new Date();
+const dw = ['日','月','火','水','木','金','土'];
+document.getElementById('dateVal').textContent = (today.getMonth()+1)+'/'+(today.getDate())+'('+dw[today.getDay()]+')';
+
+// ===== PAGE SWITCH =====
+function switchPage(id) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.bn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  const idx = ['overview','shop','prep','recipe','day','adjust'].indexOf(id);
+  document.querySelectorAll('.bn')[idx].classList.add('active');
+}
+
+// ===== SOUP DATA =====
+const soups = [
+  {label:'Week1 味噌', name:'味噌スープ',
+   ingredients:[{name:'味噌',qty:'大さじ3〜4',price:30},{name:'乾燥わかめ',qty:'ひとつまみ',price:20}],
+   steps:[{t:'野菜を切って鍋に入れ、水をかぶるくらい入れて煮る',tip:''},{t:'野菜が柔らかくなったら冷凍ほうれん草・わかめを加える',tip:''},{t:'火を止めてから味噌を溶かして完成',tip:'💡 沸騰させると風味が飛ぶ。必ず火を止めてから'}],
+   storage:{fridge:3,freeze:21,warn:'温め直しは沸騰直前で止めること'},
+   pfc:{p:8,c:12,f:2,v:350,kcal:100},point:'最初はこれが無難。味噌の種類を変えると味が変わる。'},
+  {label:'Week2 鶏ガラ', name:'鶏ガラスープ',
+   ingredients:[{name:'鶏ガラスープの素',qty:'小さじ2',price:20},{name:'乾燥わかめ',qty:'ひとつまみ',price:20}],
+   steps:[{t:'野菜を切って鍋に入れ、水800mlと鶏ガラスープの素を入れて煮る',tip:''},{t:'野菜が柔らかくなったら冷凍ほうれん草・わかめを加える',tip:''},{t:'塩こしょうで味を整えて完成',tip:'💡 ごま油を数滴たらすと風味UP'}],
+   storage:{fridge:4,freeze:21,warn:'もやしは冷凍すると食感が落ちる。冷凍分はもやし少なめに'},
+   pfc:{p:6,c:10,f:2,v:350,kcal:80},point:'薄味でさっぱり。夜遅い食事に向いている。'},
+  {label:'Week3 コンソメ', name:'コンソメスープ',
+   ingredients:[{name:'コンソメ',qty:'2個',price:30},{name:'トマト缶（optional）',qty:'1個',price:100}],
+   steps:[{t:'野菜を切って鍋に入れ、水600mlとコンソメを入れて沸かす',tip:''},{t:'玉ねぎが透明になるまで中火で煮る（約10分）',tip:''},{t:'冷凍ほうれん草を加えて3分。塩こしょうで完成',tip:'💡 トマト缶を入れると酸味が出て飽きにくい。日持ちも伸びる'}],
+   storage:{fridge:5,freeze:30,warn:'キャベツは冷凍後に柔らかくなる。食感重視なら冷凍分のキャベツ少なめに'},
+   pfc:{p:5,c:12,f:2,v:300,kcal:85},point:'トマト缶入りは冷凍保存が最優秀。30日OK。'},
+  {label:'Week4 カレー', name:'カレー風味スープ',
+   ingredients:[{name:'鶏ガラスープの素',qty:'小さじ2',price:20},{name:'カレー粉',qty:'小さじ1〜2',price:20}],
+   steps:[{t:'鶏ガラスープベースで野菜スープを作る（Week2と同じ手順）',tip:''},{t:'仕上げにカレー粉を加えて混ぜる',tip:'💡 カレー粉は少量から。入れすぎると辛くなる'},{t:'塩で味を整えて完成',tip:''}],
+   storage:{fridge:3,freeze:14,warn:'カレー系は傷みやすい。冷凍も2週間以内に食べ切ること'},
+   pfc:{p:7,c:12,f:3,v:350,kcal:100},point:'4週目のマンネリ解消。スパイスが代謝UP効果あり。'},
+  {label:'⭐ 生姜味噌', name:'生姜味噌スープ',
+   ingredients:[{name:'味噌',qty:'大さじ3〜4',price:30},{name:'生姜（チューブでもOK）',qty:'小さじ1〜2',price:50},{name:'乾燥わかめ',qty:'ひとつまみ',price:20}],
+   steps:[{t:'野菜を切って鍋に入れ、水をかぶるくらい入れて煮る',tip:''},{t:'野菜が柔らかくなったら冷凍ほうれん草・わかめを加える',tip:''},{t:'火を止めてから味噌と生姜を溶かして完成',tip:'💡 生姜は後から入れると香りが飛ばずに残る'}],
+   storage:{fridge:3,freeze:21,warn:'味噌スープは温め直しを沸騰直前で止めること。生姜の香りを飛ばさないために。'},
+   pfc:{p:8,c:12,f:2,v:350,kcal:105},point:'夜22時に最適。体を温めて代謝UP＋発酵食品で腸内環境◎。最もおすすめのスープ。'},
+];
+
+// ===== SHOP DATA =====
+const baseItems = [
+  {cat:'タンパク質', items:[
+    {name:'鶏むね肉', qty:'1.3〜1.5kg', price:550, note:'弁当220g×5食分'},
+    {name:'卵', qty:'15個', price:300, note:'昼弁当5個＋夕方補食10個'},
+    {name:'豆腐', qty:'300g×5パック', price:400, note:'夜食用。作り置きに混ぜない'},
+    {name:'納豆', qty:'5パック', price:200, note:'夜食用。会社に持っていかない'},
+  ]},
+  {cat:'冷凍野菜（昼弁当用）', items:[
+    {name:'冷凍ブロッコリー or ミックス野菜', qty:'1〜1.25kg', price:250, note:'弁当200〜250g×5食分'},
+  ]},
+  {cat:'野菜（夜スープ用）', items:[
+    {name:'キャベツ', qty:'1/2〜1玉', price:100, note:'スープのかさ増し主役'},
+    {name:'もやし', qty:'3〜5袋', price:120, note:'安くてかさ増し最強'},
+    {name:'玉ねぎ', qty:'2〜3個', price:100, note:'甘みと食感のベース'},
+    {name:'きのこ（しめじ or えのき）', qty:'2〜3パック', price:180, note:'食物繊維・低カロリー'},
+    {name:'冷凍ほうれん草', qty:'1袋', price:150, note:'弁当・スープ両方に使える'},
+  ]},
+];
+
+let soupIdx = 0;
+let shopChecked = new Set();
+
+function getAllShopItems() {
+  const all = [];
+  baseItems.forEach(cat => cat.items.forEach(item => all.push({...item, cat:cat.cat})));
+  soups[soupIdx].ingredients.forEach(item => all.push({...item, cat:'スープ調味料（今週分）', note:''}));
+  return all;
+}
+
+function renderSoupOpts() {
+  document.getElementById('soupOpts').innerHTML = soups.map((s,i) =>
+    `<div class="soup-opt ${i===soupIdx?'active':''}" onclick="selectSoup(${i})">${s.label}</div>`
+  ).join('');
+}
+
+function selectSoup(idx) {
+  soupIdx = idx;
+  renderSoupOpts();
+  renderShop();
+}
+
+function renderShop() {
+  const all = getAllShopItems();
+  const done = shopChecked.size;
+  const total = all.length;
+  document.getElementById('shopProg').textContent = done+'/'+total;
+  document.getElementById('shopBar').style.width = (total>0?Math.round(done/total*100):0)+'%';
+  const totalCost = all.reduce((s,i)=>s+(i.price||0),0);
+  document.getElementById('totalCost').textContent = '約'+totalCost.toLocaleString()+'円';
+  document.getElementById('shopUncheckedCount').textContent = (total-done)+'件';
+  document.getElementById('shopCheckedCount').textContent = done+'件';
+
+  const catMap = {};
+  all.forEach((item,i) => {
+    if (!shopChecked.has(i)) {
+      if (!catMap[item.cat]) catMap[item.cat]=[];
+      catMap[item.cat].push({item,i});
+    }
+  });
+
+  let html='';
+  Object.keys(catMap).forEach(cat => {
+    html+=`<div class="cat-lbl">${cat}</div>`;
+    catMap[cat].forEach(({item,i}) => {
+      html+=`<div class="item" onclick="toggleShop(${i})">
+        <div class="chk"></div>
+        <div class="item-body"><div class="item-name">${item.name}</div>${item.note?`<div class="item-note">${item.note}</div>`:''}</div>
+        <div class="item-right"><div class="item-price">~${item.price}円</div><div class="item-qty">${item.qty}</div></div>
+      </div>`;
+    });
+  });
+  document.getElementById('shopUnchecked').innerHTML = html || '<div style="padding:20px 0;text-align:center;color:var(--muted);font-size:13px">✅ 全部チェック済み！</div>';
+
+  let checkedHtml='';
+  all.forEach((item,i) => {
+    if (shopChecked.has(i)) {
+      checkedHtml+=`<div class="item done" onclick="toggleShop(${i})">
+        <div class="chk">✓</div>
+        <div class="item-body"><div class="item-name">${item.name}</div></div>
+        <div class="item-right"><div class="item-price">~${item.price}円</div></div>
+      </div>`;
+    }
+  });
+  document.getElementById('shopChecked').innerHTML = checkedHtml;
+}
+
+function toggleShop(i) {
+  shopChecked.has(i)?shopChecked.delete(i):shopChecked.add(i);
+  renderShop();
+}
+function resetShop(){ shopChecked.clear(); renderShop(); }
+
+// ===== PREP STEPS =====
+const prepSteps = [
+  {name:'炊飯をスタート', desc:'6〜7合の米を炊く。炊飯中に次のステップを進める。', time:'0分（セットのみ）', tip:''},
+  {name:'鶏むね肉をゆでる', desc:'鍋に肉を入れ水をかぶるまで入れる→沸騰後弱火数分→火を止めて蓋して放置。炊飯と並行してOK。', time:'30〜40分（放置込み）', tip:'塩ひとつまみで味付け。冷めたら220g×5に分けて保存。'},
+  {name:'ゆで卵を10〜15個作る', desc:'沸騰したお湯に卵を入れて8分。', time:'10分', tip:'殻付きのまま冷蔵保存で5日持つ。心配なら水曜に7個追加で茹でる。'},
+  {name:'ごはんを小分け冷凍', desc:'昼用250g×5個＋夜用125g×5個をラップに包んで冷凍。', time:'15分', tip:'熱いうちに包む。冷めてから冷凍すると味が落ちる。'},
+  {name:'弁当5食を組む', desc:'弁当容器5個にごはん250g＋鶏むね220g＋冷凍野菜200〜250gを詰める。冷凍野菜は解凍不要でそのまま入れてOK。', time:'15分', tip:'前日夜に1個だけ冷蔵庫へ移す。毎朝は詰め替え不要。'},
+  {name:'夜スープを作る（5食分）', desc:'野菜（キャベツ・もやし・玉ねぎ・きのこ・冷凍ほうれん草・わかめ）を煮て今週選んだ味付けで仕上げる。', time:'30分', tip:'豆腐・卵・納豆は入れない。食べる直前に追加する。冷蔵2〜3食分、残りはジップロックで冷凍。'},
+  {name:'保存・片付け', desc:'鶏むねの残りをジップロックで冷凍。スープを1食分ずつ分けて冷凍。容器・鍋を洗う。', time:'15分', tip:'冷凍スープは平らに入れると解凍が早い。'},
+];
+
+let prepChecked = new Set();
+
+function renderPrep() {
+  const done = prepChecked.size;
+  const total = prepSteps.length;
+  document.getElementById('prepProg').textContent = done+'/'+total;
+  document.getElementById('prepBar').style.width = (total>0?Math.round(done/total*100):0)+'%';
+  document.getElementById('prepLeftCount').textContent = (total-done)+'件残り';
+  document.getElementById('prepCheckedCount').textContent = done+'件';
+
+  let html='', checkedHtml='';
+  prepSteps.forEach((step,i) => {
+    const isDone = prepChecked.has(i);
+    const el = `<div class="prep-item ${isDone?'done':''}" onclick="togglePrep(${i})">
+      <div class="chk" style="border-radius:50%;min-width:21px">${isDone?'✓':(i+1)}</div>
+      <div class="prep-body">
+        <div class="prep-name">${step.name}</div>
+        <div class="prep-desc">${step.desc}</div>
+        ${step.tip?`<div class="prep-tip">💡 ${step.tip}</div>`:''}
+      </div>
+      <div class="prep-time">${step.time}</div>
+    </div>`;
+    isDone ? checkedHtml+=el : html+=el;
+  });
+  document.getElementById('prepUnchecked').innerHTML = html || '<div style="padding:20px 0;text-align:center;color:var(--muted);font-size:13px">🎉 仕込み完了！</div>';
+  document.getElementById('prepChecked').innerHTML = checkedHtml;
+}
+
+function togglePrep(i){ prepChecked.has(i)?prepChecked.delete(i):prepChecked.add(i); renderPrep(); }
+function resetPrep(){ prepChecked.clear(); renderPrep(); }
+
+// ===== RECIPE =====
+let recipeIdx = 0;
+const recipes = [
+  // 昼弁当
+  () => `
+    <div class="card">
+      <div class="card-hd g"><div><div class="card-label">LUNCH / 月〜金固定</div><div class="card-name">鶏むね弁当</div><div class="card-sub">朝5分で詰めるだけ</div></div><div><div class="card-meta-val">800〜900kcal</div><div class="card-meta-sub">P 60〜70g</div></div></div>
+      <div class="card-body">
+        <div class="tags"><span class="tag k">ごはん 250g</span><span class="tag k">鶏むね 220g</span><span class="tag k">冷凍野菜 200〜250g</span><span class="tag k">ゆで卵 1個</span></div>
+        <div class="steps">
+          <div class="steps-lbl">SUNDAY PREP — 日曜の仕込み</div>
+          <div class="step"><span class="step-n">1.</span><span>鶏むね肉を鍋に入れ、水をかぶるくらい入れて沸騰させる</span></div>
+          <div class="step"><span class="step-n">2.</span><span>弱火で数分→火を止めて蓋して放置。冷めたら220gずつ分けて保存</span></div>
+          <div class="step-tip">💡 塩ひとつまみで味付け。タレは毎週変えると飽きない</div>
+          <div class="step"><span class="step-n">3.</span><span>ごはんを250g×5個にラップ小分けして冷凍（熱いうちに）</span></div>
+          <div class="step"><span class="step-n">4.</span><span>ゆで卵10〜15個を茹でる（沸騰後8分）</span></div>
+        </div>
+        <div class="steps">
+          <div class="steps-lbl">MORNING — 朝5分の詰め方</div>
+          <div class="step"><span class="step-n">1.</span><span>冷凍ごはんをレンジで3分解凍→弁当箱に詰める</span></div>
+          <div class="step"><span class="step-n">2.</span><span>鶏むね220g＋冷凍野菜200〜250gを詰める</span></div>
+          <div class="step"><span class="step-n">3.</span><span>ゆで卵1個を添える</span></div>
+          <div class="step"><span class="step-n">4.</span><span>タレ（ポン酢 or 醤油）を小容器に入れて別添え</span></div>
+          <div class="step-tip">💡 タレは現地でかける。前日に混ぜると水っぽくなる</div>
+        </div>
+        <div class="bento">
+          <div class="bento-lbl">BENTO LAYOUT</div>
+          <div class="bento-grid">
+            <div class="bzone full"><div class="bzone-lbl">MAIN</div><div class="bzone-name">🍚 ごはん</div><div class="bzone-g">250g</div></div>
+            <div class="bzone"><div class="bzone-lbl">PROTEIN</div><div class="bzone-name">🐔 鶏むね</div><div class="bzone-g">220g</div></div>
+            <div class="bzone"><div class="bzone-lbl">VEG</div><div class="bzone-name">🥦 冷凍野菜</div><div class="bzone-g">200〜250g</div></div>
+          </div>
+          <div class="btips">
+            <div class="btip"><span>❄️</span><span>保冷バッグ＋保冷剤で持ち運ぶ。夏場は必須</span></div>
+            <div class="btip"><span>💧</span><span>野菜の水気をしっかり切る。濡れたまま詰めると傷みが早い</span></div>
+            <div class="btip"><span>🔄</span><span>飽き対策：タレだけ週ごとに変える（ポン酢→ごまだれ→梅→塩こうじ）</span></div>
+          </div>
+        </div>
+        <div class="storage">
+          <div class="storage-lbl">STORAGE</div>
+          <div class="st-row"><div class="st-icon">🐔</div><div>鶏むね（ゆで）<span class="st-days">冷蔵3日</span><span class="st-days">冷凍3週間</span><br><span style="font-size:11px;color:var(--muted2)">3日分は冷蔵、残りは1食分ずつジップロックで冷凍</span></div></div>
+          <div class="st-row"><div class="st-icon">🥚</div><div>ゆで卵<span class="st-days">殻付き冷蔵5日</span><br><span style="font-size:11px;color:var(--muted2)">むいた状態は水に浸けて冷蔵3日</span></div></div>
+          <div class="st-row"><div class="st-icon">🍚</div><div>冷凍ごはん<span class="st-days">冷凍1ヶ月</span><br><span style="font-size:11px;color:var(--muted2)">熱いうちにラップ包みで冷凍</span></div></div>
+          <div class="st-warn">⚠️ もやしは水曜に使い切る。金曜弁当用は水曜に追加でゆでること</div>
+        </div>
+      </div>
+    </div>`,
+  // 夕方補食
+  () => `
+    <div class="info o"><strong>なぜ補食が必要か？</strong><br>昼13時から夜22時まで9時間空く。ここを無補食で乗り越えると帰宅後に爆食しやすい。夕方17〜18時に少し食べることで夜の暴食を防ぐ。</div>
+    <div class="card">
+      <div class="card-hd o"><div><div class="card-label">SNACK A / 節約優先</div><div class="card-name">ゆで卵 2個</div></div><div><div class="card-meta-val">~140kcal</div><div class="card-meta-sub">P 12g</div></div></div>
+      <div class="card-body" style="font-size:13px;line-height:1.6">日曜に仕込んだゆで卵を持っていくだけ。1個約20円で最安。<div class="tags" style="margin-top:8px"><span class="tag p">P 12g</span><span class="tag k">約40円</span></div></div>
+    </div>
+    <div class="card">
+      <div class="card-hd o"><div><div class="card-label">SNACK B / 楽さ優先</div><div class="card-name">プロテイン 1杯</div></div><div><div class="card-meta-val">~130kcal</div><div class="card-meta-sub">P 20〜25g</div></div></div>
+      <div class="card-body" style="font-size:13px;line-height:1.6">シェイカーに水で溶かすだけ。会社でも飲める。<div class="tags" style="margin-top:8px"><span class="tag p">P 20〜25g</span></div></div>
+    </div>
+    <div class="card">
+      <div class="card-hd o"><div><div class="card-label">SNACK C / コンビニ版</div><div class="card-name">オイコス プロテインドリンク</div></div><div><div class="card-meta-val">~100kcal</div><div class="card-meta-sub">P 15g前後</div></div></div>
+      <div class="card-body" style="font-size:13px;line-height:1.6">
+        <div class="info o" style="margin-bottom:0"><strong>⚠️ オイコスのルール</strong><br>「飲み物」ではなく「補食」として扱う。1日1本まで。飲んだ日はゆで卵・プロテインは追加しない。</div>
+      </div>
+    </div>`,
+  // 夜スープ（選択中のもの）
+  () => {
+    const s = soups[soupIdx];
+    return `
+    <div class="info t"><strong>夜の定番セット：</strong>スープ＋ごはん100〜150g＋豆腐300g＋納豆1パック＋卵1個。豆腐・納豆・卵は食べる直前に追加。作り置きに混ぜない。</div>
+    <div class="soup-sel" style="margin-bottom:12px">
+      <div class="soup-sel-lbl">今週のスープ</div>
+      <div class="soup-opts">${soups.map((s2,i)=>`<div class="soup-opt ${i===soupIdx?'active':''}" onclick="soupIdx=${i};renderRecipe()">${s2.label}</div>`).join('')}</div>
+    </div>
+    <div class="card">
+      <div class="card-hd t"><div><div class="card-label">SOUP / 5食分</div><div class="card-name">${s.name}</div></div></div>
+      <div class="card-body">
+        <div class="tags">${s.ingredients.map(i=>`<span class="tag k">${i.name} ${i.qty}</span>`).join('')}</div>
+        <div class="steps">
+          <div class="steps-lbl">RECIPE</div>
+          ${s.steps.map((st,i)=>`<div class="step"><span class="step-n">${i+1}.</span><span>${st.t}</span></div>${st.tip?`<div class="step-tip">${st.tip}</div>`:''}`).join('')}
+        </div>
+        <div class="storage">
+          <div class="storage-lbl">STORAGE</div>
+          <div class="st-row"><div class="st-icon">🧊</div><div>冷蔵<span class="st-days">${s.storage.fridge}日</span> <span style="font-size:11px;color:var(--muted2)">2〜3食分のみ冷蔵。残りは必ず冷凍</span></div></div>
+          <div class="st-row"><div class="st-icon">❄️</div><div>冷凍<span class="st-days">${s.storage.freeze}日</span> <span style="font-size:11px;color:var(--muted2)">1食分ずつジップロックで平らに冷凍</span></div></div>
+          <div class="st-warn">⚠️ ${s.storage.warn}</div>
+        </div>
+        <div class="tags">
+          <span class="tag k">${s.pfc.kcal}kcal/食（スープのみ）</span>
+          <span class="tag p">P ${s.pfc.p}g</span>
+          <span class="tag v">野菜 ${s.pfc.v}g</span>
+        </div>
+        <div class="point">💡 ${s.point}</div>
+      </div>
+    </div>`;
+  }
+];
+
+function switchRecipe(idx) {
+  recipeIdx = idx;
+  document.querySelectorAll('.rtab').forEach((t,i)=>t.classList.toggle('active',i===idx));
+  renderRecipe();
+}
+function renderRecipe(){ document.getElementById('recipeContainer').innerHTML = recipes[recipeIdx](); }
+
+// ===== DAY =====
+const targets = {p:110,c:160,f:50,kcal:1800};
+const dayNames = ['月','火','水','木','金','土','日'];
+const M = {
+  lunch:{icon:'🍱',name:'鶏むね弁当',kcal:850,desc:'ごはん250g＋鶏むね220g＋冷凍野菜200〜250g＋ゆで卵1個',p:65,c:90,f:12},
+  snackEgg:{icon:'🥚',name:'ゆで卵2個',kcal:140,desc:'夕方の補食。夜の爆食防止。',p:12,c:1,f:10},
+  snackPro:{icon:'🥤',name:'プロテイン1杯',kcal:130,desc:'楽さ重視の日はこれ。',p:23,c:5,f:3},
+  dinner:{icon:'🍲',name:'夜の定番セット',kcal:720,desc:'ごはん100〜150g＋豆腐300g＋納豆1パック＋卵1個＋野菜スープ400〜500g',p:40,c:65,f:18},
+  lunchSat:{icon:'🍽️',name:'外食（定食系）',kcal:750,desc:'松屋・吉野家・サイゼなど。肉or魚定食が◎。',p:35,c:80,f:20},
+  lunchSun:{icon:'🍽️',name:'外食（買い出しついでに）',kcal:700,desc:'スーパー帰りに外食。',p:30,c:75,f:18},
+  dinnerSat:{icon:'🥗',name:'軽め自炊',kcal:500,desc:'昼が外食なので夜は軽く。納豆ごはん＋スープ。',p:25,c:55,f:12},
+  dinnerSun:{icon:'🍲',name:'新スープ仕込み＋試食',kcal:600,desc:'今週のスープを作って試食。来週分の準備完了。',p:32,c:60,f:15},
+};
+const dayMeals=[
+  {lunch:M.lunch,snack:M.snackEgg,dinner:M.dinner},
+  {lunch:M.lunch,snack:M.snackEgg,dinner:M.dinner},
+  {lunch:M.lunch,snack:M.snackPro,dinner:M.dinner},
+  {lunch:M.lunch,snack:M.snackEgg,dinner:M.dinner},
+  {lunch:M.lunch,snack:M.snackEgg,dinner:M.dinner},
+  {lunch:M.lunchSat,snack:M.snackEgg,dinner:M.dinnerSat},
+  {lunch:M.lunchSun,snack:M.snackEgg,dinner:M.dinnerSun},
+];
+
+function switchDay(idx){
+  document.querySelectorAll('.dtab').forEach((t,i)=>t.classList.toggle('active',i===idx));
+  renderDay(idx);
+}
+function renderDay(idx){
+  const d=dayMeals[idx];
+  const meals=[{label:'LUNCH',...d.lunch},{label:'SNACK',...d.snack},{label:'DINNER',...d.dinner}];
+  const tK=meals.reduce((s,m)=>s+m.kcal,0);
+  const tP=meals.reduce((s,m)=>s+m.p,0);
+  const tC=meals.reduce((s,m)=>s+m.c,0);
+  const tF=meals.reduce((s,m)=>s+m.f,0);
+  const pct=(v,t)=>Math.min(100,Math.round(v/t*100));
+  document.getElementById('dayContainer').innerHTML=`
+    <div class="day-total">
+      <div class="dt-lbl">${dayNames[idx]}曜日の合計</div>
+      <div><div class="dt-val">${tK} kcal</div><div class="dt-sub">目標 1,700〜1,900 kcal</div></div>
+    </div>
+    <div class="meters">
+      <div class="meters-lbl">1日PFC達成率</div>
+      <div class="meter"><div class="meter-hd"><span class="meter-name" style="color:var(--red)">タンパク質</span><span class="meter-val">${tP}g/${targets.p}g（${pct(tP,targets.p)}%）</span></div><div class="meter-bg"><div class="meter-fill" style="width:${pct(tP,targets.p)}%;background:var(--red)"></div></div></div>
+      <div class="meter"><div class="meter-hd"><span class="meter-name" style="color:var(--yellow)">糖質</span><span class="meter-val">${tC}g/${targets.c}g（${pct(tC,targets.c)}%）</span></div><div class="meter-bg"><div class="meter-fill" style="width:${pct(tC,targets.c)}%;background:var(--yellow)"></div></div></div>
+      <div class="meter"><div class="meter-hd"><span class="meter-name" style="color:var(--teal)">脂質</span><span class="meter-val">${tF}g/${targets.f}g（${pct(tF,targets.f)}%）</span></div><div class="meter-bg"><div class="meter-fill" style="width:${pct(tF,targets.f)}%;background:var(--teal)"></div></div></div>
+      <div class="meter"><div class="meter-hd"><span class="meter-name" style="color:var(--green)">カロリー</span><span class="meter-val">${tK}kcal/${targets.kcal}kcal（${pct(tK,targets.kcal)}%）</span></div><div class="meter-bg"><div class="meter-fill" style="width:${pct(tK,targets.kcal)}%;background:var(--green)"></div></div></div>
+    </div>
+    ${meals.map(m=>`
+      <div class="meal-row">
+        <div class="meal-icon">${m.icon}</div>
+        <div class="meal-body"><div class="meal-type">${m.label}</div><div class="meal-name">${m.name}</div><div class="meal-desc">${m.desc}</div></div>
+        <div class="meal-kcal">${m.kcal}kcal</div>
+      </div>`).join('')}`;
+}
+
+// ===== CHECKED TOGGLE =====
+function toggleChecked(type){
+  const toggle=document.getElementById(type+'Toggle');
+  const list=document.getElementById(type+'Checked');
+  toggle.classList.toggle('open');
+  list.classList.toggle('open');
+}
+
+// ===== WIN LIST =====
+const wins=['昼は会社で買わない。弁当で固定する','タンパク質は毎日100g前後を狙う','野菜は昼弁当と夜スープで稼ぐ','夜が遅いので夕方に補食を入れる（爆食防止）','飲み物は基本水。オイコスは補食扱い','冷蔵しすぎず冷凍を使う（2〜3日分のみ冷蔵）','最初の2週間は完璧より継続','2〜3週間で体重を見て、落ちなければ微調整'];
+document.getElementById('winList').innerHTML = wins.map(w=>`
+  <div class="chk-item" onclick="this.classList.toggle('done');this.querySelector('.chk').textContent=this.classList.contains('done')?'✓':''">
+    <div class="chk"></div><span>${w}</span>
+  </div>`).join('');
+
+// ===== INIT =====
+renderSoupOpts();
+renderShop();
+renderPrep();
+renderRecipe();
+renderDay(0);
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('SW registered:', reg.scope))
+      .catch(err => console.log('SW error:', err));
+  });
+}
+</script>
+</body>
+</html>
