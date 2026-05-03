@@ -2,7 +2,7 @@
   "name": "梶田のダイエットアプリ",
   "short_name": "ダイエット",
   "description": "節約×楽ダイエット - 買い出し・仕込み・レシピ・PFC管理",
-  "start_url": "/",
+  "start_url": "/diet-app/",
   "display": "standalone",
   "background_color": "#0a0a0a",
   "theme_color": "#4ade80",

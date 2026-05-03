@@ -1,10 +1,10 @@
 const CACHE_NAME = 'diet-app-v1';
 const ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png'
+  '/diet-app/',
+  '/diet-app/index.html',
+  '/diet-app/manifest.json',
+  '/diet-app/icon-192.png',
+  '/diet-app/icon-512.png'
 ];
 
 // インストール時にキャッシュ
