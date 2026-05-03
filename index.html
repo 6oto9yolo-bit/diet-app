@@ -522,9 +522,10 @@ function renderShop() {
 
 function toggleShop(i) {
   shopChecked.has(i)?shopChecked.delete(i):shopChecked.add(i);
+  saveState();
   renderShop();
 }
-function resetShop(){ shopChecked.clear(); renderShop(); }
+function resetShop(){ shopChecked.clear(); saveState(); renderShop(); }
 
 // ===== PREP STEPS =====
 const prepSteps = [
@@ -565,8 +566,8 @@ function renderPrep() {
   document.getElementById('prepChecked').innerHTML = checkedHtml;
 }
 
-function togglePrep(i){ prepChecked.has(i)?prepChecked.delete(i):prepChecked.add(i); renderPrep(); }
-function resetPrep(){ prepChecked.clear(); renderPrep(); }
+function togglePrep(i){ prepChecked.has(i)?prepChecked.delete(i):prepChecked.add(i); saveState(); renderPrep(); }
+function resetPrep(){ prepChecked.clear(); saveState(); renderPrep(); }
 
 // ===== RECIPE =====
 let recipeIdx = 0;
@@ -743,7 +744,51 @@ document.getElementById('winList').innerHTML = wins.map(w=>`
     <div class="chk"></div><span>${w}</span>
   </div>`).join('');
 
+
+// ===== 自動リセット（毎週日曜0時）=====
+function getThisSunday() {
+  const now = new Date();
+  const day = now.getDay(); // 0=日
+  const diff = day === 0 ? 0 : 7 - day;
+  const sunday = new Date(now);
+  sunday.setDate(now.getDate() + diff);
+  sunday.setHours(0, 0, 0, 0);
+  return sunday.toDateString();
+}
+
+function checkAutoReset() {
+  const lastReset = localStorage.getItem('lastResetDate');
+  const thisSunday = getThisSunday();
+  const today = new Date().toDateString();
+  const isSunday = new Date().getDay() === 0;
+
+  // 今日が日曜日 かつ まだ今週リセットしていない場合
+  if (isSunday && lastReset !== today) {
+    shopChecked.clear();
+    prepChecked.clear();
+    localStorage.setItem('lastResetDate', today);
+    console.log('Auto reset done:', today);
+  }
+}
+
+// チェック状態をlocalStorageに保存・復元
+function saveState() {
+  localStorage.setItem('shopChecked', JSON.stringify([...shopChecked]));
+  localStorage.setItem('prepChecked', JSON.stringify([...prepChecked]));
+}
+
+function loadState() {
+  try {
+    const s = localStorage.getItem('shopChecked');
+    const p = localStorage.getItem('prepChecked');
+    if (s) shopChecked = new Set(JSON.parse(s));
+    if (p) prepChecked = new Set(JSON.parse(p));
+  } catch(e) {}
+}
+
 // ===== INIT =====
+loadState();
+checkAutoReset();
 renderSoupOpts();
 renderShop();
 renderPrep();
